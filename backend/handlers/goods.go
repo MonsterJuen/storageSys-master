@@ -22,7 +22,10 @@ type ContractCall struct {
 var MyPrivateKey string = "priSPKkpuYHiwQ886GdRrb9s6TbCmTqYdQdKEYo1X6njuSiMNP"
 var SDK_URL string = "http://test.bifcore.bitfactory.cn"
 var MyAccountAddress string = "did:bid:efPLdVAy6AN5wVgViFzfeNZ5yauq7hFs"
-var ContractAddress = "did:bid:efwjBFEAAXzdhnhuP8XDBfCVGSJEh2kn"
+var ContractAddress string = "did:bid:efwjBFEAAXzdhnhuP8XDBfCVGSJEh2kn"
+
+// 创建中文时间格式模板
+const chineseTimeLayout = "2006年1月2日15时04分"
 
 // 模拟数据存储
 var goodsList = make([]models.Goods, 0)
@@ -49,8 +52,8 @@ func ContractCalls(senderAddress string, contractAddress string, senderPrivateKe
 
 func GenerateCall(s models.Goods) ContractCall {
 	return ContractCall{
-		Function: "createProduct(string,string,string,string,string,string,string,string,string)",
-		Args: fmt.Sprintf("%s,%s,%s,%s,%f,%f,%s,%s,%s",
+		Function: "addGoods(string,string,string,string,string,string,string,string)",
+		Args: fmt.Sprintf("%s,%s,%s,%s,%f,%f,%s,%s",
 			s.GoodsID,
 			s.Name,
 			s.Type,
@@ -59,7 +62,6 @@ func GenerateCall(s models.Goods) ContractCall {
 			s.Temperature,
 			s.Location,
 			s.InTime,
-			s.Status,
 		),
 	}
 }
@@ -116,7 +118,7 @@ func CreateInbound(c *gin.Context) {
 	// 生成唯一ID和批次编号
 	goods.ID = uuid.New().String()
 	goods.GoodsID = "SF" + time.Now().Format("20060102") + uuid.New().String()[:3]
-	goods.InTime = time.Now()
+	goods.InTime = time.Now().Format(chineseTimeLayout)
 	goods.Status = "in_stock"
 
 	contractCall := GenerateCall(goods)
